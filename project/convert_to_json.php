@@ -13,15 +13,18 @@ if (isset($_POST['submit'])) {
     isset($_POST['check2']) ? $new_message['additionalServices'][] = 'driver' : false;
 
     $price = 0;
-    $new_message['rate'] = 10 + $new_message[' minutes'] * 3; // Базовый тариф
-
-
-    if (!empty($new_message['additionalServices'])) {
-        if(isset($new_message['additionalServices']['wifi']) and $new_message['rate'] != 10 and $new_message['minutes'] >= 120){
-            $price += 15 * round($new_message['minutes']/60);
-        }
+    $new_message['rate']['10'] = 10 + $new_message[' minutes'] * 3; // Базовый тариф
+    if (isset($_POST['minutes']) >= 1440) {
+        $new_message['rate']['1000'] = 1000 + $new_message[' minutes']; // Дневной тариф
     }
 
+
+
+    if (!empty($new_message['additionalServices'])) { // WIFI в салоне
+        if (isset($new_message['additionalServices']['wifi']) and $new_message['rate'] != 10 and $new_message['minutes'] >= 120) {
+            $price += 15 * round($new_message['minutes'] / 60);
+        }
+    }
 
 
     $json = json_encode($new_message, JSON_PRETTY_PRINT);
