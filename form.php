@@ -25,7 +25,7 @@ require_once('./project/convert_to_json.php');
             <i class="bi bi-activity"></i>
         </div>
         <div class="col-9">
-            <form action="project/convert_to_json.php" id="form" method="post">
+            <form action="" id="form" method="post">
                 <label class="form-label" for="product">Выберите тариф:</label>
                 <select class="form-select" name="product" id="product">
                     <option value="10">Базовый тариф</option>
@@ -59,8 +59,17 @@ require_once('./project/convert_to_json.php');
                 </div>
 
                 <button type="submit" name="submit" class="btn btn-primary">Рассчитать</button>
-                <!--                <button onclick="sendJSON()" class="btn btn-primary" type="submit" name="submit">Рассчитать</button>-->
                 <p class="result" style="color:blue"></p>
+                <div class="col-6">
+                    <p class="form-label">Итоговая цена:
+                        <?php
+                        $price_json = file_get_contents("./project/price.json");
+                        $price_data = json_decode($price_json, true);
+                        $result = $price_data["result"];
+                        echo $result;
+                        ?>
+                    </p>
+                </div>
             </form>
         </div>
     </div>
