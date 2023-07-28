@@ -1,5 +1,75 @@
 <?php
 
+// Определяет интерфейс базового тарифа с методом расчета цены
+interface TariffInterface
+{
+    public function calculatePrice(array $data): int;
+}
+
+// Главные тарифы
+class BaseTariff implements TariffInterface
+{
+
+    public function calculatePrice(array $data): int
+    {
+        // TODO: Implement calculatePrice() method.
+        return ($data['km'] * $data['rate']) + (3 * $data['minutes']);
+    }
+}
+
+class DailyTariff implements TariffInterface
+{
+
+    public function calculatePrice(array $data): int
+    {
+        // TODO: Implement calculatePrice() method.
+        return 1000 * round(($data['minutes'] / 60) / 24);
+    }
+}
+
+class HourlyTariff implements TariffInterface
+{
+
+    public function calculatePrice(array $data): int
+    {
+        // TODO: Implement calculatePrice() method.
+        return 200 * round($data['minutes'] / 60);
+    }
+}
+
+class StudentTariff implements TariffInterface
+{
+
+    public function calculatePrice(array $data): int
+    {
+        // TODO: Implement calculatePrice() method.
+        return (1 * $data['minutes']) + (4 + $data['km']);
+    }
+}
+
+// интерфейс дополнительной услуги с методом расчета дополнительной стоимости
+interface AdditionalServiceInterface
+{
+    public function calculateAdditionalCost(array $data): int;
+}
+
+// Дополнительные тарифы
+class DriverService implements AdditionalServiceInterface
+{
+    public function calculateAdditionalCost(array $data): int
+    {
+        // TODO: Implement calculateAdditionalCost() method.
+        return 100;
+    }
+}
+
+class WifiService implements AdditionalServiceInterface
+{
+    public function calculateAdditionalCost(array $data): int
+    {
+        return 15 * round($data['minutes'] / 60);
+    }
+}
 
 if (isset($_POST['submit'])) {
     $new_message = array(
@@ -13,26 +83,57 @@ if (isset($_POST['submit'])) {
     isset($_POST['check1']) ? $new_message['additionalServices'][] = 'driver' : false;
     isset($_POST['check2']) ? $new_message['additionalServices'][] = 'wifi' : false;
 
-    $price = 0;
-    if ($new_message['rate'] == 10) { // Базовый тариф
-        $price = ($new_message['km'] * $new_message['rate']) + (3 * $new_message['minutes']);
-    }
-    if ($new_message['rate'] == 1000 and round($new_message['minutes'] / 60) >= 24) { // Дневной тариф
-        $price = 1000 * round(($new_message['minutes'] / 60) / 24);
-    }
-    if ($new_message['rate'] == 200) { // почасовой тариф
-        $price = 200 * round($new_message['minutes'] / 60);
-    }
-    if ($new_message['rate'] == 4 and $new_message['driveAge'] <= 25) { // Студенческий тариф
-        $price = (1 * $new_message['minutes']) + (4 * $new_message['km']);
+    $tariff = null;
+
+    // Основные тарифы
+    switch ($new_message['rate']) {
+        case 10:
+            $tariff = new BaseTariff();
+            break;
+        case 1000:
+            if (round($new_message['minutes'] / 60) >= 24) {
+                $tariff = new DailyTariff();
+            }
+            break;
+        case 200:
+            $tariff = new HourlyTariff();
+            break;
+        case 4:
+            if ($new_message['driveAge'] <= 25) {
+                $tariff = new StudentTariff();
+            }
+            break;
+        default:
+            break;
     }
 
-    if (!empty($new_message['additionalServices'])) { // Check for additional services
-        if (in_array('driver', $new_message['additionalServices']) and $new_message['rate'] != 4) {
-            $price += 100;
+    $additionalServices = array();
+
+    // Дополнительные тарифы
+    if (!empty($new_message['additionalServices'])) {
+        foreach ($new_message['additionalServices'] as $service) {
+            switch ($service) {
+                case 'driver':
+                    $additionalServices[] = new DriverService();
+                    break;
+                case 'wifi':
+                    $additionalServices[] = new WifiService();
+                    break;
+                default:
+                    break;
+            }
         }
-        if (in_array('wifi', $new_message['additionalServices']) and $new_message['rate'] != 10 && $new_message['minutes'] >= 120) {
-            $price += 15 * round($new_message['minutes'] / 60);
+    }
+
+    $price = 0;
+
+    if ($tariff !== null) {
+        // Рассчитать цену с использованием соответствующего тарифного объекта
+        $price = $tariff->calculatePrice($new_message);
+
+        // Рассчитать дополнительные затраты на выбранные услуги
+        foreach ($additionalServices as $service) {
+            $price += $service->calculateAdditionalCost($new_message);
         }
     }
 
