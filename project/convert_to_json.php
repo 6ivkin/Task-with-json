@@ -12,7 +12,6 @@ class BaseTariff implements TariffInterface
 
     public function calculatePrice(array $data): int
     {
-        // TODO: Implement calculatePrice() method.
         return ($data['km'] * $data['rate']) + (3 * $data['minutes']);
     }
 }
@@ -22,7 +21,6 @@ class DailyTariff implements TariffInterface
 
     public function calculatePrice(array $data): int
     {
-        // TODO: Implement calculatePrice() method.
         return 1000 * round(($data['minutes'] / 60) / 24);
     }
 }
@@ -32,7 +30,6 @@ class HourlyTariff implements TariffInterface
 
     public function calculatePrice(array $data): int
     {
-        // TODO: Implement calculatePrice() method.
         return 200 * round($data['minutes'] / 60);
     }
 }
@@ -42,7 +39,6 @@ class StudentTariff implements TariffInterface
 
     public function calculatePrice(array $data): int
     {
-        // TODO: Implement calculatePrice() method.
         return (1 * $data['minutes']) + (4 + $data['km']);
     }
 }
