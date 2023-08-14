@@ -1,9 +1,9 @@
 {
     "rate": "10",
-    "km": "18",
-    "minutes": "20",
-    "driveAge": "22",
+    "km": "12",
+    "minutes": "12",
+    "driveAge": "132",
     "additionalServices": [
-        "driver"
+        "wifi"
     ]
 }

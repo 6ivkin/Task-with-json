@@ -1,5 +1,33 @@
 <?php
 require_once('./project/convert_to_json.php');
+
+if (isset($_POST['submit'])) {
+    // Initialize variables
+    $new_message = array(
+        "rate" => filter_input(INPUT_POST, 'product', FILTER_SANITIZE_NUMBER_INT),
+        "km" => filter_input(INPUT_POST, 'distance', FILTER_SANITIZE_NUMBER_INT),
+        "minutes" => filter_input(INPUT_POST, 'time', FILTER_SANITIZE_NUMBER_INT),
+        "driveAge" => filter_input(INPUT_POST, 'age', FILTER_SANITIZE_NUMBER_INT),
+        "additionalServices" => array(),
+    );
+
+    if ($new_message['driveAge'] < 18) {
+        $error_driverAge = 'Ваш возраст должен быть не меньше 18 лет.';
+    }
+
+    if ($new_message['km'] < 0) {
+        $error_km = 'Количество километров не может быть отрицательным.';
+    }
+
+    if ($new_message['rate'] == 200 && $new_message['minutes'] < 60) {
+        $error_minutes = 'Для почасового тарифа время не может быть меньше 60 минут.';
+    }
+
+    if ($new_message['minutes'] < 120) {
+        $error_minutes_wifi = 'Для этой опции время должно быть выше 2-х часов.';
+    }
+
+}
 ?>
 
 
@@ -36,12 +64,21 @@ require_once('./project/convert_to_json.php');
 
                 <label for="customRange1" class="form-label">Количество километров:</label>
                 <input type="text" name="distance" class="form-control" id="customRange1" min="1">
+                <?php if (isset($error_km)) { ?>
+                    <p style="color: red;"><?php echo $error_km; ?></p>
+                <?php } ?>
 
                 <label for="customRange1" class="form-label">Сколько планируете времени:</label>
                 <input type="text" name="time" class="form-control" id="customRange2" min="1">
+                <?php if (isset($error_minutes)) { ?>
+                    <p style="color: red;"><?php echo $error_minutes; ?></p>
+                <?php } ?>
 
                 <label for="customRange1" class="form-label">Ваш возраст:</label>
                 <input type="text" name="age" class="form-control" id="customRange2" min="18">
+                <?php if (isset($error_driverAge)) { ?>
+                    <p style="color: red;"><?php echo $error_driverAge; ?></p>
+                <?php } ?>
 
                 <label for="customRange1" class="form-label">Дополнительно:</label>
 
@@ -56,6 +93,9 @@ require_once('./project/convert_to_json.php');
                     <label class="form-check-label" for="flexCheckChecked1">
                         Дополнительный WIFI
                     </label>
+                    <?php if (isset($error_minutes_wifi)) { ?>
+                        <p style="color: red;"><?php echo $error_minutes_wifi; ?></p>
+                    <?php } ?>
                 </div>
 
                 <button type="submit" name="submit" class="btn btn-primary">Рассчитать</button>
@@ -65,8 +105,10 @@ require_once('./project/convert_to_json.php');
                         <?php
                         $price_json = file_get_contents("./project/price.json");
                         $price_data = json_decode($price_json, true);
-                        $result = $price_data["result"];
-                        echo $result;
+                        if (isset($price_data["result"])) {
+                            $result = $price_data["result"];
+                            echo htmlspecialchars($result, ENT_QUOTES, 'UTF-8');
+                        }
                         ?>
                     </p>
                 </div>
