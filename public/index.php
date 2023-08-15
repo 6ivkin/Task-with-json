@@ -1,50 +1,86 @@
 <?php
-require_once('./project/convert_to_json.php');
+
+// public/index.php
+require_once '../vendor/autoload.php';
+require_once './src/ConvertToJson.php';
+require_once './src/Utils.php';
+
+use App\Tariffs\BaseTariff;
+use App\Tariffs\DailyTariff;
+use App\Tariffs\HourlyTariff;
+use App\Tariffs\StudentTariff;
+use App\Services\DriverService;
+use App\Services\WifiService;
+use App\Utils;
+use App\ConvertToJson;
 
 if (isset($_POST['submit'])) {
-    // Initialize variables
     $new_message = array(
-        "rate" => filter_input(INPUT_POST, 'product', FILTER_SANITIZE_NUMBER_INT),
-        "km" => filter_input(INPUT_POST, 'distance', FILTER_SANITIZE_NUMBER_INT),
-        "minutes" => filter_input(INPUT_POST, 'time', FILTER_SANITIZE_NUMBER_INT),
-        "driveAge" => filter_input(INPUT_POST, 'age', FILTER_SANITIZE_NUMBER_INT),
+        "rate" => Utils::sanitizeNumber(INPUT_POST, 'product'),
+        "km" => Utils::sanitizeNumber(INPUT_POST, 'distance'),
+        "minutes" => Utils::sanitizeNumber(INPUT_POST, 'time'),
+        "driveAge" => Utils::sanitizeNumber(INPUT_POST, 'age'),
         "additionalServices" => array(),
     );
 
-    isset($_POST['check1']) ? $new_message['additionalServices'][] = 'driver' : false;
-    isset($_POST['check2']) ? $new_message['additionalServices'][] = 'wifi' : false;
+    $tariff = null;
 
-    if ($new_message['driveAge'] < 18) {
-        $error_driverAge = 'Ваш возраст должен быть не меньше 18 лет.';
+    switch ($new_message['rate']) {
+        case 10:
+            $tariff = new BaseTariff();
+            break;
+        case 1000:
+            if (round($new_message['minutes'] / 60) >= 24) {
+                $tariff = new DailyTariff();
+            }
+            break;
+        case 200:
+            $tariff = new HourlyTariff();
+            break;
+        case 4:
+            $tariff = new StudentTariff();
+            break;
+        default:
+            break;
     }
 
-    if ($new_message['rate'] == 4 and $new_message['driveAge'] > 25) {
-        $error_driverRate_student = 'В этом тарифе возраст не может превышать 25 лет.';
+    // Additional services logic
+    $additionalServices = array();
+
+    if (!empty($new_message['additionalServices'])) {
+        foreach ($new_message['additionalServices'] as $service) {
+            switch ($service) {
+                case 'driver':
+                    $additionalServices[] = new DriverService();
+                    break;
+                case 'wifi':
+                    $additionalServices[] = new WifiService();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
-    if ($new_message['rate'] == 1000 and round($new_message['minutes'] / 60) < 24) {
-        $error_minutes_daily = 'В этом тарифе время не может быть меньше 1-го дня.';
+    $price = 0;
+
+    if ($tariff !== null) {
+        // Рассчитать цену с использованием соответствующего тарифного объекта
+        $price = $tariff->calculatePrice($new_message);
+
+        // Рассчитать дополнительные затраты на выбранные услуги
+        foreach ($additionalServices as $service) {
+            $price += $service->calculateAdditionalCost($new_message);
+        }
     }
 
-    if ($new_message['km'] < 0) {
-        $error_km = 'Количество километров не может быть отрицательным.';
-    }
+    $json = json_encode($new_message, JSON_PRETTY_PRINT);
+    file_put_contents("./project/data.json", $json);
 
-    if ($new_message['rate'] == 200 && $new_message['minutes'] < 60) {
-        $error_minutes = 'Для почасового тарифа время не может быть меньше 60 минут.';
-    }
-
-    if ($new_message['minutes'] < 120 && $new_message['rate'] == 200 && in_array('wifi', $new_message['additionalServices'])) {
-        $error_minutes_wifi = 'Для этой опции время должно быть выше 2-х часов.';
-    }
-
-    if ($new_message['rate'] == 4 && in_array('driver', $new_message['additionalServices'])) {
-        $error_additional_driver = 'В этом тарифе не доступна эта опция.';
-    }
-
+    $json = json_encode(array("result" => $price), JSON_PRETTY_PRINT);
+    file_put_contents("./project/price.json", $json);
 }
 ?>
-
 
 <!DOCTYPE html>
 <html>

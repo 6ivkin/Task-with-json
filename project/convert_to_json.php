@@ -145,9 +145,9 @@ if (isset($_POST['submit'])) {
             $tariff = new HourlyTariff();
             break;
         case 4:
-            if ($new_message['driveAge'] <= 25) {
+//            if ($new_message['driveAge'] <= 25) {
                 $tariff = new StudentTariff();
-            }
+//            }
             break;
         default:
             break;
