@@ -1,12 +1,7 @@
 <?php
 
-// src/ConvertToJson.php
-namespace App;
-
-class ConvertToJson
+function convertToJson(array $data, $filename): void
 {
-    public static function toJson(array $data)
-    {
-        return json_encode($data, JSON_PRETTY_PRINT);
-    }
+    $json = json_encode($data, JSON_PRETTY_PRINT);
+    file_put_contents($filename, $json);
 }

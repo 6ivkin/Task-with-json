@@ -1,25 +1,50 @@
 <?php
 
-// src/App/Tariffs/HourlyTariff.php
-namespace App\Tariffs;
-
-use App\Interfaces\TariffInterface;
+require_once './src/App/Interfaces/ErrorHandlerInterface.php';
 
 class HourlyTariff implements TariffInterface
 {
     public function calculatePrice(array $data): int
     {
-        // Проверить количество километров на отрицательное значение
-//        if($data['km'] < 0) {
-//            throw new \InvalidArgumentException('Количество километров не может быть отрицательным');
-//        }
-
-        // Проверить время, не может быть меньше 1 часа
-//        if($data['minutes'] / 60 < 1) {
-//            throw new \InvalidArgumentException('Время не может быть меньше 1 часа');
-//        }
-
         // Проверить количество километров на наличие отрицательных значений
         return 200 * round($data['minutes'] / 60);
+    }
+}
+
+class HourlyTariffErrorHandler implements ErrorHandlerInterface
+{
+    private $nextHandler;
+
+    public function setNext(ErrorHandlerInterface $handler): ErrorHandlerInterface
+    {
+        $this->nextHandler = $handler;
+        return $handler;
+    }
+
+    public function handle(array $data): ?string
+    {
+        if ($data['km'] < 0) {
+            // ... проверка ошибки ...
+            // если ошибка:
+            return 'Количество километров не может быть отрицательным.';
+        }
+
+        if($data['driverAge'] < 18) {
+            return 'Минимальный возраст должен быть 18 лет.';
+        }
+
+        if (round($data['minutes'] / 60) < 1) {
+            return 'Время не может быть меньше одного часа.';
+        }
+
+        if (in_array('wifi', $data['additionalServices']) and $data['minutes'] < 120) {
+            return 'Минимальное время поездки 2 часа.';
+        }
+
+        if ($this->nextHandler !== null) {
+            return $this->nextHandler->handle($data);
+        }
+
+        return null; // Ошибка не обработана
     }
 }

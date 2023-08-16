@@ -1,9 +1,9 @@
 {
     "name": "f.terentev/task-for-me",
-    "description": "test task for compony",
+    "description": "test task for company",
     "autoload": {
         "psr-4": {
-            "FTerentev\\TaskForMe\\": "src/"
+
         }
     },
     "authors": [
