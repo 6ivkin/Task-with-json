@@ -10,6 +10,7 @@ require_once './src/App/Tariffs/HourlyTariff.php';
 require_once './src/App/Tariffs/StudentTariff.php';
 require_once './src/App/Services/DriverService.php';
 require_once './src/App/Services/WifiService.php';
+require_once 'vendor/autoload.php';
 
 $tariffErrorHandlers = [
     new BaseTariffErrorHandler(),

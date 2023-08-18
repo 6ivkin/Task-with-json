@@ -41,7 +41,7 @@ class HtmlOutput
                         <input type="text" name="distance" class="form-control" id="km" min="1">
 
                         <label for="customRange1" class="form-label">Сколько планируете времени:</label>
-                        <input type="text" name="time" class="form-control" id="time" min="1">
+                        <input type="text" name="time" class="form-control" id="time" min="1" placeholder="1440 минут = 1 день">
 
                         <label for="customRange1" class="form-label">Ваш возраст:</label>
                         <input type="text" name="age" class="form-control" id="age" min="18">

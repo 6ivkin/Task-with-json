@@ -23,14 +23,38 @@ class StudentTariffErrorHandler implements ErrorHandlerInterface
 
     public function handle(array $data): ?string
     {
+        if (empty($data['km'])) {
+            return 'Введите количество километров.';
+        }
+
+        if (empty($data['driverAge'])) {
+            return 'Введите возраст водителя.';
+        }
+
+        if (!is_numeric($data['km'])) {
+            return 'Количество километров должно быть числовым значением.';
+        }
+
+        if (!is_numeric($data['driverAge'])) {
+            return 'Возраст водителя должен быть числовым значением.';
+        }
+
+        if (!is_numeric($data['minutes'])) {
+            return 'Количество времени должно быть числовым значением.';
+        }
+
         if ($data['km'] < 0) {
             // ... проверка ошибки ...
             // если ошибка:
             return 'Количество километров не может быть отрицательным.';
         }
 
+        if ($data['driverAge'] > 110) {
+            return 'Введите корректный возраст.';
+        }
+
         if (($data['driverAge'] < 26) and ($data['driverAge'] < 18)) {
-            return 'Этот тариф доступен лицам до 25 лет.';
+            return 'Этот тариф доступен лицам от 18 до 25 лет.';
         }
 
         if ($this->nextHandler !== null) {

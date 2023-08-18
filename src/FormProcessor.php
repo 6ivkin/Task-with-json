@@ -20,6 +20,42 @@ class FormProcessor
         $this->errorHandler = $errorHandler;
     }
 
+    private function createAdditionalServices(array $selectedServices): array
+    {
+        $additionalServices = [];
+
+        foreach ($selectedServices as $service) {
+            switch ($service) {
+                case 'driver':
+                    $additionalServices[] = new DriverService();
+                    break;
+                case 'wifi':
+                    $additionalServices[] = new WifiService();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $additionalServices;
+    }
+
+    private function createTariff(int $selectedRate): ?TariffInterface
+    {
+        switch ($selectedRate) {
+            case 10:
+                return new BaseTariff();
+            case 1000:
+                return new DailyTariff();
+            case 200:
+                return new HourlyTariff();
+            case 4:
+                return new StudentTariff();
+            default:
+                return null;
+        }
+    }
+
     public function processForm(array $formData)
     {
         $new_message = array(
@@ -33,61 +69,57 @@ class FormProcessor
         isset($_POST['check1']) ? $new_message['additionalServices'][] = 'driver' : false;
         isset($_POST['check2']) ? $new_message['additionalServices'][] = 'wifi' : false;
 
-        if ($new_message['km'] == '') {
-            return 'Не может быть пустым значением.';
-        }
-
         $validationError = $this->errorHandler->handle($new_message);
 
         if ($validationError !== null) {
             return $validationError;
         }
 
-        $tariff = null;
+        $additionalServices = $this->createAdditionalServices($new_message['additionalServices']);
+        $tariff = $this->createTariff($new_message['rate']);
+//        $tariff = null;
 
         // Основные тарифы
-        switch ($new_message['rate']) {
-            case 10:
-                $tariff = new BaseTariff();
-                break;
-            case 1000:
-                $tariff = new DailyTariff();
-                break;
-            case 200:
-                $tariff = new HourlyTariff();
-                break;
-            case 4:
-                $tariff = new StudentTariff();
-                break;
-            default:
-                break;
-        }
+//        switch ($new_message['rate']) {
+//            case 10:
+//                $tariff = new BaseTariff();
+//                break;
+//            case 1000:
+//                $tariff = new DailyTariff();
+//                break;
+//            case 200:
+//                $tariff = new HourlyTariff();
+//                break;
+//            case 4:
+//                $tariff = new StudentTariff();
+//                break;
+//            default:
+//                break;
+//        }
 
-        $additionalServices = array();
+//        $additionalServices = array();
 
         // Дополнительные тарифы
-        if (!empty($new_message['additionalServices'])) {
-            foreach ($new_message['additionalServices'] as $service) {
-                switch ($service) {
-                    case 'driver':
-                        $additionalServices[] = new DriverService();
-                        break;
-                    case 'wifi':
-                        $additionalServices[] = new WifiService();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
+//        if (!empty($new_message['additionalServices'])) {
+//            foreach ($new_message['additionalServices'] as $service) {
+//                switch ($service) {
+//                    case 'driver':
+//                        $additionalServices[] = new DriverService();
+//                        break;
+//                    case 'wifi':
+//                        $additionalServices[] = new WifiService();
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//        }
 
         $price = 0;
 
         if ($tariff !== null) {
-            // Рассчитать цену с использованием соответствующего тарифного объекта
             $price = $tariff->calculatePrice($new_message);
 
-            // Рассчитать дополнительные затраты на выбранные услуги
             foreach ($additionalServices as $service) {
                 $price += $service->calculateAdditionalCost($new_message);
             }
