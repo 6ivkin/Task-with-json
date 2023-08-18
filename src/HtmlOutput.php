@@ -69,7 +69,12 @@ class HtmlOutput
 
                         <div class="col-6">
                             <p class="form-label">Итоговая цена:
-                                <?php echo htmlspecialchars($priceData['result'], ENT_QUOTES, 'UTF-8'); ?>
+                                <?php if ($errorMessage) {
+//                                    echo htmlspecialchars($priceData['result'] == 0, ENT_QUOTES, 'UTF-8');
+                                    echo $priceData['result'] === 0;
+                                } else {
+                                    echo htmlspecialchars($priceData['result'], ENT_QUOTES, 'UTF-8');
+                                } ?>
                             </p>
                         </div>
                     </form>

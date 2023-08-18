@@ -33,6 +33,10 @@ class FormProcessor
         isset($_POST['check1']) ? $new_message['additionalServices'][] = 'driver' : false;
         isset($_POST['check2']) ? $new_message['additionalServices'][] = 'wifi' : false;
 
+        if ($new_message['km'] == '') {
+            return 'Не может быть пустым значением.';
+        }
+
         $validationError = $this->errorHandler->handle($new_message);
 
         if ($validationError !== null) {
@@ -47,9 +51,7 @@ class FormProcessor
                 $tariff = new BaseTariff();
                 break;
             case 1000:
-                if (round($new_message['minutes'] / 60) >= 24) {
-                    $tariff = new DailyTariff();
-                }
+                $tariff = new DailyTariff();
                 break;
             case 200:
                 $tariff = new HourlyTariff();
@@ -91,10 +93,10 @@ class FormProcessor
             }
         }
 
-        convertToJson($new_message, "./src/App/Json/data.json"); // Сохраняем данные в JSON
+        convertToJson($new_message, "./data.json"); // Сохраняем данные в JSON
 
         $json = json_encode(array("result" => $price), JSON_PRETTY_PRINT);
-        file_put_contents("./src/App/Json/price.json", $json);
+        file_put_contents("./price.json", $json);
 
         return null; // Возвращаем null, если обработка успешна
     }

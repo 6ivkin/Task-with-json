@@ -33,14 +33,6 @@ class StudentTariffErrorHandler implements ErrorHandlerInterface
             return 'Этот тариф доступен лицам до 25 лет.';
         }
 
-        if(in_array('driver', $data['additionalServices']) and $data['rate'] == 4) {
-            return 'Эта услуга не доступна в этом тарифе.';
-        }
-
-        if (in_array('wifi', $data['additionalServices']) and $data['minutes'] < 120) {
-            return 'Минимальное время поездки 2 часа.';
-        }
-
         if ($this->nextHandler !== null) {
             return $this->nextHandler->handle($data);
         }

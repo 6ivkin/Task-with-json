@@ -1,0 +1,10 @@
+{
+    "rate": "1000",
+    "km": "12",
+    "minutes": "1600",
+    "driverAge": "22",
+    "additionalServices": [
+        "driver",
+        "wifi"
+    ]
+}

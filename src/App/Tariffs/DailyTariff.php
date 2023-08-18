@@ -33,12 +33,8 @@ class DailyTariffErrorHandler implements ErrorHandlerInterface
             return 'Минимальный возраст должен быть 18 лет.';
         }
 
-        if (round($data['minutes'] / 60) < 24) {
+        if ($data['minutes'] < 1440) {
             return 'Время не может быть меньше одного дня.';
-        }
-
-        if (in_array('wifi', $data['additionalServices']) and $data['minutes'] < 120) {
-            return 'Минимальное время поездки 2 часа.';
         }
 
         if ($this->nextHandler !== null) {

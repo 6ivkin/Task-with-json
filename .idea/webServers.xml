@@ -9,6 +9,13 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
+      <webServer id="cb30d1c1-6cbc-4ffb-bf79-7f52079aa87e" name="Bitrix Test">
+        <fileTransfer accessType="SFTP" host="172.17.20.22" port="22" sshConfigId="7b9e338b-5278-47ce-97ce-71f14aecac45" sshConfig="root@172.17.20.22:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>

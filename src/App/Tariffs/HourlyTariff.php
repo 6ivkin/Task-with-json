@@ -37,10 +37,6 @@ class HourlyTariffErrorHandler implements ErrorHandlerInterface
             return 'Время не может быть меньше одного часа.';
         }
 
-        if (in_array('wifi', $data['additionalServices']) and $data['minutes'] < 120) {
-            return 'Минимальное время поездки 2 часа.';
-        }
-
         if ($this->nextHandler !== null) {
             return $this->nextHandler->handle($data);
         }
